@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rack telecom · Estudo de montagem</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="styles.css">
+  <script type="importmap">{"imports":{"three":"./vendor/three/three.module.js","three/addons/":"./vendor/three/addons/"}}</script>
+</head>
+<body>
+  <header><img src="ctech.png" alt="CTech Solutions Tecnologia"><span>ENGENHARIA / VISUALIZAÇÃO</span><a href="LEIA-ME.md">Guia do projeto ↗</a></header>
+  <main>
+    <aside>
+      <div class="eyebrow"><i></i> ESTUDO DE MONTAGEM · R01</div>
+      <h1>Dentro<br>do rack.</h1>
+      <p class="lead">Explore a organização dos equipamentos e acompanhe a desmontagem em 3D.</p>
+      <div class="specs"><span><b>20U</b> espaço útil estimado</span><span><b>600 × 600 × 1.100</b> L × P × A · mm aproximados</span></div>
+      <div class="list-heading">CONJUNTOS <span>07</span></div>
+      <div id="equipment" aria-label="Selecionar equipamento">
+        <button data-object="RACK_Valrack"><span>01</span> Rack Valrack <em>Estrutura</em></button>
+        <button data-object="FONTE_Chaveada"><span>02</span> Fonte chaveada <em>Alimentação</em></button>
+        <button data-object="ONU_Huawei"><span>03</span> ONU Huawei <em>Transporte</em></button>
+        <button data-object="SWITCH_TP_Link"><span>04</span> Switch TP-Link <em>16 portas</em></button>
+        <button data-object="REGUA_Energia"><span>05</span> Régua de energia <em>8 tomadas</em></button>
+        <button data-object="NOBREAK_Ragtech"><span>06</span> Nobreak Ragtech <em>Proteção</em></button>
+        <button data-object="BATERIA_Moura"><span>07</span> Bateria Moura <em>Reserva</em></button>
+      </div>
+      <p class="note">Medidas e cabos ilustrativos. A montagem segue as referências visuais e depende da conferência dos equipamentos reais.</p>
+    </aside>
+    <section class="stage" aria-label="Visualizador 3D do rack">
+      <div class="stage-head"><span><i></i> MODELO INTERATIVO</span><span id="phase">Montado</span></div>
+      <div id="viewport" aria-label="Arraste para girar o rack; use a roda para aproximar"></div>
+      <div id="loading" role="status">Carregando o rack…</div>
+      <div class="view-buttons"><button id="assembled">Montado</button><button id="exploded">Vista explodida</button><button id="reset" aria-label="Restaurar enquadramento">↺ Vista</button></div>
+      <div class="selection" id="selection" aria-live="polite"><b>Rack telecom</b><span>Arraste para girar · role para aproximar</span></div>
+      <div class="transport">
+        <button id="play" class="primary" disabled>▶ Reproduzir</button>
+        <div class="timeline"><label for="time">DESMONTAGEM E REMONTAGEM <output id="time-label">00,0 / 12,0 s</output></label><input id="time" type="range" min="0" max="12" step="0.01" value="0" disabled></div>
+        <button id="restart" aria-label="Voltar ao início">↤</button>
+      </div>
+    </section>
+  </main>
+  <footer><span>MODELO CONCEITUAL · REFERÊNCIAS FORNECIDAS PELO USUÁRIO</span><span>Blender → glTF 2.0 → Three.js</span></footer>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
