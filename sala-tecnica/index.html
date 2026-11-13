@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sala técnica · Data center</title>
+<style>
+*{box-sizing:border-box}html{background:#eeeee7;color:#202d29;font:15px "Segoe UI",Arial,sans-serif}body{margin:0;height:650vh}main{position:fixed;inset:0;display:grid;grid-template-rows:62px auto minmax(0,1fr) auto;background:#f3f3ed}header,footer,.intro,.stage{margin:0 clamp(16px,4vw,72px)}header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #c7cdc3}header strong{letter-spacing:-.04em;font-size:22px}header strong span{color:#39765e}button,summary{cursor:pointer}button{font:inherit;color:inherit}button:focus-visible,summary:focus-visible{outline:3px solid #34865f}.info{border:1px solid #b6c1b4;border-radius:30px;background:transparent;padding:8px 16px}.intro{display:flex;align-items:end;justify-content:space-between;padding:clamp(12px,2.6vh,32px) 0 15px}.intro h1{font:500 clamp(38px,5vw,80px)/1 Georgia,serif;letter-spacing:-.055em;margin:0}.intro p{font:12px monospace;text-align:right;margin:0;line-height:1.7}.stage{position:relative;overflow:hidden;border:1px solid #bec8bc;border-radius:5px;background-color:#e8ece3;background-image:linear-gradient(#82947f18 1px,transparent 1px),linear-gradient(90deg,#82947f18 1px,transparent 1px);background-size:24px 24px}canvas,#plan{width:100%;height:100%;display:block;position:absolute;inset:0}#plan{pointer-events:none}.corner{position:absolute;left:18px;top:16px;font:11px monospace;letter-spacing:.08em;color:#365745;background:#eef2e8e8;border:1px solid #bccabd;border-radius:3px;padding:7px 9px}.scale{position:absolute;bottom:14px;left:18px;font:11px monospace;color:#3e574b}.controls{display:flex;gap:8px;align-items:center}.controls button{width:37px;height:37px;border:1px solid #bac4b8;border-radius:50%;background:#fafaf5;font-size:20px}.controls button:last-child{background:#264a39;color:white}.controls button:disabled{opacity:.38}footer{padding:17px 0 13px}.bar{width:100%;accent-color:#34664e;margin:0;cursor:pointer}.row{display:flex;align-items:center;justify-content:space-between;margin-top:8px}.row small{font:11px monospace;color:#526458}.row h2{font:500 22px Georgia;margin:3px 0}.hint{font-size:13px;color:#47584c}dialog{background:#f5f5ee;color:#23342b;border:1px solid #aeb9ab;border-radius:8px;width:min(460px,92vw);padding:24px;line-height:1.5}dialog::backdrop{background:#13261ec0}dialog h2{font:30px Georgia;margin:0}dialog a{color:#286246}dialog button{float:right}#status{font-size:13px}svg text{font-family:monospace} @media(max-width:640px){main{grid-template-rows:50px auto minmax(0,1fr) auto}.intro{display:block}.intro p{text-align:left;margin-top:6px}.hint{display:none}.stage{margin:0 8px}.corner{left:8px;top:8px}.scale{left:8px}footer{padding:10px 0}.row h2{font-size:19px}}@media(max-height:500px){main{grid-template-rows:36px minmax(0,1fr) auto}.intro{display:none}footer{padding:3px 0}.row{margin:0}}
+</style><main><header><strong><span>▥</span> Data center</strong><div><a class="info" href="explorar.html">Explorar a sala</a> <button class="info" id="details">Ficha técnica ↗</button></div></header><div class="intro"><h1>Sala técnica</h1><p>22,16 m² &nbsp; / &nbsp; 06 racks<br>Estudo de implantação</p></div><div class="stage" id="stage"><canvas id="fallback"></canvas><svg id="plan" viewBox="0 0 900 478" role="img" aria-label="Planta da sala. Seis racks na metade posterior, duas calhas e climatização nas paredes laterais."></svg><div class="corner" id="view"></div><span class="scale" id="caption"></span></div><footer><input class="bar" id="progress" type="range" min="0" max="1000" value="0" aria-label="Posição no percurso"><div class="row"><div><small id="count"></small><h2 id="chapter"></h2></div><span class="hint">Role para percorrer a sala ↓</span><div class="controls"><button id="prev" aria-label="Etapa anterior">←</button><button id="next" aria-label="Próxima etapa">→</button></div></div></footer></main>
+<dialog id="sheet"><button class="info" id="closeSheet">Fechar</button><h2>Ficha técnica</h2><p>A área indicada é de <b>22,16 m²</b>. O contorno interno mede aproximadamente 725 × 320 pixels. Admitindo uma planta sem distorção, cada pixel representa 9,77 mm.</p><p>As referências mostram um bastidor aberto, cinco gabinetes fechados, dois aparelhos laterais e duas rotas aéreas. A calha amarela conduz a fibra óptica e a vermelha conduz os cabos de energia.</p><p>A entrada frontal de 0,90 m, o pé-direito de 2,75 m e os racks com 2,10 m de altura são hipóteses de visualização. O piso reproduz o aspecto geral com textura cerâmica equivalente.</p><p><a href="https://polyhaven.com/a/tiled_floor_001" target="_blank" rel="noreferrer">Poly Haven · Tiled Floor 001</a><br>Repetição física de aproximadamente 1,50 × 1,50 m.</p><p id="status"></p></dialog>
+<script type="module">import * as three from "../vendor/three/three.module.js";window.THREE=three;setupGL();</script><script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" async></script>
+<script id="model">
+
+const $=id=>document.getElementById(id), W=Math.sqrt(22.16*725/320), D=22.16/W, H=2.75;
+const X=px=>(px-81)*W/725-W/2, Z=px=>(px-66)*D/320-D/2;
+const racks=[343,432,498,565,636,704].map(X), rz=Z(190), door=-2.55;
+const items=[];
+function box(x,y,z,w,h,d,color,group='equipment'){items.push({x,y,z,w,h,d,color,group})}
+box(0,-.045,0,W+.18,.09,D+.18,'#ad8761','floor');
+box(0,H/2,-D/2-.045,W+.18,H,.09,'#cecdc4','wall');
+for(const s of [-1,1])box(s*(W/2+.045),H/2,0,.09,H,D,'#d8d8ce','wall');
+for(const [a,b] of [[-W/2,door-.45],[door+.45,W/2]])box((a+b)/2,H/2,D/2+.045,b-a,H,.09,'#dadbd2','wall');
+box(door,2.45,D/2+.045,.9,.6,.09,'#dadbd2','wall');
+for(const side of [-1,1]){
+ const x=side*(W/2-.1);
+ box(x,2.37,.04,.20,.31,.90,'#ebeae0');
+ for(let i=0;i<4;i++)box(x-side*.105,2.25+i*.026,.04,.014,.013,.72,'#767b76');
+}
+racks.forEach((x,i)=>{
+ const w=i===0?.57:.62,d=.88,h=2.1;
+ if(i===0){
+ for(const s of [-1,1])for(const t of [-1,1])box(x+s*(w/2-.025),h/2,rz+t*(d/2-.025),.05,h,.05,'#241f1a');
+ for(const y of [.05,h-.045])box(x,y,rz,w,.085,d,'#25231f');
+ }else{
+ box(x,h/2,rz,w,h,d,'#292d2d');box(x,1.06,rz+d/2+.009,w-.055,1.99,.019,'#1e2324');
+ for(let j=0;j<17;j++)box(x,.20+j*.105,rz+d/2+.021,w-.10,.009,.006,'#343a39');
+ box(x+w*.35,1.05,rz+d/2+.04,.018,.13,.025,'#7d817c');
+ }
+});
+function tray(x1,x2,z,y,col){box((x1+x2)/2,y,z,x2-x1,.035,.074,col);
+ for(let x=x1+.08;x<x2;x+=.32)box(x,y+.018,z,.014,.052,.091,'#5b5546')}
+tray(X(410),X(772),Z(78),2.55,'#da4c29');tray(X(240),X(719),Z(100),2.33,'#e3bc22');
+racks.forEach((x,i)=>{for(const [z,y,c,dx] of [[Z(78),2.55,'#e95631',-.035],[Z(100),2.33,'#e8c326',.09]]){
+ if(!i&&y>2.4)continue;
+ const end=rz-.24;box(x+dx,y,(z+end)/2,.065,.033,end-z,c);box(x+dx,(y+2.1)/2,end,.065,y-2.1,.045,c);
+}});
+box(X(126),1.17,Z(89),.075,2.34,.055,'#e5c529');tray(X(126),X(151),Z(89),2.33,'#e5c529');
+// The measured plan uses the same pixel-to-metre transform as the model.
+const svg=$('plan'),ns='http://www.w3.org/2000/svg';
+function el(type,props,txt){const n=document.createElementNS(ns,type);for(const [k,v] of Object.entries(props))n.setAttribute(k,v);if(txt)n.textContent=txt;svg.append(n);return n}
+function rect(x,y,width,height,fill,stroke='none'){el('rect',{x,y,width,height,fill,stroke})}
+function line(x1,y1,x2,y2,stroke,width=1){el('line',{x1,y1,x2,y2,stroke,'stroke-width':width})}
+function label(x,y,s,size=13){el('text',{x,y,'text-anchor':'middle',fill:'#375448','font-size':size},s)}
+rect(75,76,735,330,'#35483d');rect(81,82,723,318,'#f7f7ec');
+for(let x=95;x<805;x+=21)line(x,82,x,400,'#dfe3d5',.7);
+for(let y=89;y<400;y+=21)line(81,y,804,y,'#dfe3d5',.7);
+const doorPx=81+(door+W/2-.45)*725/W;rect(doorPx,399,.90*725/W,8,'#e7ece2');
+line(doorPx,400,doorPx,309,'#7d917d');el('path',{d:'M '+doorPx+' 309 a91 91 0 0 1 91 91',fill:'none',stroke:'#8b9d8b','stroke-dasharray':'4 4'});
+for(const [i,cx] of [343,432,498,565,636,704].entries()){rect(cx-31,160,62,91,i?'#36433d':'#dbe0d2','#243b2c');rect(cx-26,165,52,80,i?'#47554c':'#f2f4e8','#748372');el('text',{x:cx,y:212,'text-anchor':'middle',fill:i?'#e2e8dd':'#415844','font-size':14},'R0'+(i+1))}
+for(const [x,y,w,h] of [[410,89,362,6],[240,107,478,5],[121,89,32,6],[121,89,6,32]])rect(x,y,w,h,y===89&&x===410?'#c75a39':'#c1ab39');
+for(const [i,cx] of [343,432,498,565,636,704].entries()){if(i)rect(cx-6,92,6,75,'#c75a39');rect(cx+5,109,4,58,'#c1ab39')}
+rect(82,198,20,91,'#dadfd3','#879987');rect(784,200,19,91,'#dadfd3','#879987');
+line(81,51,804,51,'#79917e');for(const x of [81,804])line(x,45,x,59,'#79917e');label(443,42,'≈ 7,09 m');
+line(835,82,835,400,'#79917e');for(const y of [82,400])line(829,y,841,y,'#79917e');
+el('text',{x:850,y:244,transform:'rotate(90 850 244)','text-anchor':'middle',fill:'#375448','font-size':13},'≈ 3,13 m');
+label(445,323,'22,16 m²',25);label(doorPx+46,432,'Acesso estimado',12);
+const stops=[0,.22,.48,.68,.83,1], names=['Planta baixa','Volume da sala','Entrada na sala','Bastidor aberto','Corredor dos racks','Vista do conjunto'];
+const notes=['Dimensões internas aproximadas','Paredes e infraestrutura aérea','Vão frontal estimado · 0,90 m','R01 · estrutura aberta','R02–R06 · gabinetes fechados','Dois aparelhos de climatização'];
+const clamp=x=>Math.max(0,Math.min(1,x)), smooth=x=>{x=clamp(x);return x*x*(3-2*x)},mix=(a,b,t)=>a+(b-a)*t;
+const frames=[
+ [0,[0,9,.001],[0,0,0]],[.22,[1.4,5.8,5.1],[0,.75,0]],[.37,[door,1.55,3.35],[door,1.43,.3]],[.51,[door,1.55,.96],[-1.8,1.36,-.62]],[.68,[-1.55,1.55,.91],[racks[0],1.22,rz]],[.83,[1.39,1.58,1.08],[1.56,1.57,rz]],[1,[2.92,1.70,1.36],[-.47,1.55,rz]]];
+function pose(p){
+ let hi=frames.findIndex(f=>f[0]>=p);hi=Math.max(1,hi);
+ const a=frames[hi-1],b=frames[hi],t=smooth((p-a[0])/(b[0]-a[0]));
+ return [1,2].map(k=>a[k].map((v,j)=>mix(v,b[k][j],t)));
+}
+function growth(p,g){return g==='floor'?1:.018+.982*smooth((p-.025)/(g==='wall'?.24:.20))}
+function rgb(c){return [1,3,5].map(n=>parseInt(c.slice(n,n+2),16))}
+items.forEach(o=>o.rgb=rgb(o.color));
+function tint(o,p){const mean=o.rgb.reduce((a,b)=>a+b)/3;return o.rgb.map(v=>mix(mean,v,smooth((p-.07)/.23)))}
+const stage=$('stage'),flat=$('fallback'),ctx=flat.getContext('2d');
+const sub=(a,b)=>a.map((v,i)=>v-b[i]),dot=(a,b)=>a.reduce((s,v,i)=>s+v*b[i],0),unit=a=>a.map(v=>v/Math.hypot(...a)),cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+// Local perspective renderer keeps the walkthrough available without a CDN or GPU.
+function software(p,eye,target){
+ const w=stage.clientWidth,h=stage.clientHeight,dpr=Math.min(devicePixelRatio,1.5);
+ if(flat.width!==Math.round(w*dpr)||flat.height!==Math.round(h*dpr)){flat.width=Math.round(w*dpr);flat.height=Math.round(h*dpr)}
+ ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+ const forward=unit(sub(target,eye)),right=unit(cross(forward,[0,1,0])),up=cross(right,forward),f=h/(2*Math.tan(fov(p)*Math.PI/360)),faces=[];
+ for(const o of items){
+ const g=growth(p,o.group),verts=[];
+ for(const k of [0,1])for(const j of [0,1])for(const i of [0,1]){
+ const v=sub([o.x+(i-.5)*o.w,(o.y+(j-.5)*o.h)*g,o.z+(k-.5)*o.d],eye);verts.push([dot(v,right),dot(v,up),dot(v,forward)])}
+ const color=tint(o,p);
+ for(const [ids,shade,visible] of [[[0,2,3,1],.83,eye[2]<o.z-o.d/2],[[4,5,7,6],.94,eye[2]>o.z+o.d/2],[[0,4,6,2],.79,eye[0]<o.x-o.w/2],[[1,3,7,5],.86,eye[0]>o.x+o.w/2],[[2,6,7,3],1.08,eye[1]>(o.y+o.h/2)*g],[[0,1,5,4],.73,eye[1]<(o.y-o.h/2)*g]]){
+ if(!visible)continue;const poly=ids.map(i=>verts[i]),clipped=[];
+ for(let i=0;i<4;i++){const a=poly[i],b=poly[(i+1)%4];if(a[2]>=.035)clipped.push(a);if((a[2]>=.035)!==(b[2]>=.035)){const t=(.035-a[2])/(b[2]-a[2]);clipped.push(a.map((v,k)=>mix(v,b[k],t)))}}
+ if(clipped.length<3)continue;
+ faces.push({depth:clipped.reduce((s,v)=>s+v[2],0)/clipped.length,pts:clipped.map(v=>[w/2+f*v[0]/v[2],h/2-f*v[1]/v[2]]),color:'rgb('+color.map(v=>Math.min(255,Math.round(v*shade))).join(',')+')'});
+ }}
+ faces.sort((a,b)=>b.depth-a.depth);for(const face of faces){ctx.fillStyle=face.color;ctx.beginPath();face.pts.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fill()}
+}
+function fov(p){const aspect=stage.clientWidth/Math.max(1,stage.clientHeight);return mix(Math.max(48,2*Math.atan(4.35/(5.9*aspect))*180/Math.PI),68,smooth((p-.22)/.20))}
+
+let drawGL=null,current=0,queued=false;
+function setupGL(){
+ if(!window.THREE||drawGL)return;
+ const T=THREE;let renderer;
+ try{renderer=new T.WebGLRenderer({antialias:true,alpha:true})}catch{return}
+ const canvas=renderer.domElement;stage.insertBefore(canvas,svg);flat.hidden=true;
+ renderer.setPixelRatio(Math.min(devicePixelRatio,1.8));renderer.shadowMap.enabled=true;
+ renderer.shadowMap.type=T.PCFSoftShadowMap;
+ const scene=new T.Scene(),camera=new T.PerspectiveCamera(60,1,.025,60);
+ scene.add(new T.HemisphereLight(0xfffaf0,0xc3c3ac,1.85));
+ const light=new T.DirectionalLight(0xffefda,2.25);light.position.set(-2,7,3);light.castShadow=true;
+ Object.assign(light.shadow.camera,{left:-5,right:5,top:5,bottom:-5});light.shadow.mapSize.set(1024,1024);light.shadow.normalBias=.013;scene.add(light);
+ const geo=new T.BoxGeometry(),materials=new Map(),meshes=items.map(o=>{
+ if(!materials.has(o.color))materials.set(o.color,new T.MeshStandardMaterial({color:o.color,roughness:.77,metalness:o.group==='equipment'?.17:0}));
+ const mesh=new T.Mesh(geo,materials.get(o.color));mesh.castShadow=o.group==='equipment';mesh.receiveShadow=true;scene.add(mesh);return mesh;
+ });
+ const floorMat=new T.MeshStandardMaterial({color:0xb79a75,roughness:.73});
+ const surface=new T.Mesh(new T.PlaneGeometry(W,D),floorMat);surface.rotation.x=-Math.PI/2;surface.position.y=.002;surface.receiveShadow=true;scene.add(surface);
+ const loader=new T.TextureLoader();const loaded=new Set();
+ for(const [file,key] of [['diffuse','map'],['nor_gl','normalMap'],['rough','roughnessMap']]){
+ const url='https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/tiled_floor_001/tiled_floor_001_'+file+'_1k.jpg';
+ loader.load(url,tex=>{tex.wrapS=tex.wrapT=T.RepeatWrapping;tex.repeat.set(W/1.5,D/1.5);tex.anisotropy=renderer.capabilities.getMaxAnisotropy();if(key==='map'){tex.colorSpace=T.SRGBColorSpace;floorMat.color.set(0xffffff)}floorMat[key]=tex;floorMat.needsUpdate=true;loaded.add(key);$('status').textContent='Three.js ativo · '+loaded.size+'/3 mapas de piso carregados.';paint(current)},undefined,()=>{$('status').textContent='Three.js ativo. Um ou mais mapas do piso estão indisponíveis.'});
+ }
+ drawGL=(p,eye,target)=>{
+ const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.fov=fov(p);camera.updateProjectionMatrix();camera.position.fromArray(eye);camera.lookAt(...target);
+ for(let i=0;i<items.length;i++){const o=items[i],m=meshes[i],g=growth(p,o.group);m.position.set(o.x,o.y*g,o.z);m.scale.set(o.w,o.h*g,o.d)}
+ for(const [key,mat] of materials){const c=new T.Color(key),gray=(c.r+c.g+c.b)/3,t=smooth((p-.07)/.23);mat.color.setRGB(mix(gray,c.r,t),mix(gray,c.g,t),mix(gray,c.b,t))}
+ renderer.render(scene,camera)};
+ canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();drawGL=null;canvas.remove();flat.hidden=false;$('status').textContent='Percurso em perspectiva local.';paint(current)});
+ $('status').textContent='Three.js ativo · carregando materiais.';paint(current);
+}
+function paint(p){
+ current=clamp(p);const a=1-smooth(current/.07);svg.style.opacity=a;
+ if(current>0){const [eye,target]=pose(current);(drawGL||software)(current,eye,target)}
+ const canvas=stage.querySelectorAll('canvas');canvas.forEach(c=>c.style.opacity=1-a);
+ let idx=0;for(let i=1;i<stops.length;i++)if(current>=stops[i]-.0005)idx=i;
+ $('count').textContent='ETAPA '+String(idx+1).padStart(2,'0')+' / 06';$('chapter').textContent=names[idx];$('caption').textContent=notes[idx];$('view').textContent=current<.06?'PLANTA · VISTA SUPERIOR':current<.38?'MODELO · VISTA EXTERNA':'PERCURSO · VISTA INTERNA';
+ $('progress').value=Math.round(current*1000);$('prev').disabled=current<.0005;$('next').disabled=current>.9995;
+}
+const scrollRange=()=>document.documentElement.scrollHeight-innerHeight;
+function goto(p,animate){window.scrollTo({top:p*scrollRange(),behavior:animate&&!matchMedia('(prefers-reduced-motion: reduce)').matches?'smooth':'instant'})}
+function update(){queued=false;const p=clamp(scrollY/Math.max(1,scrollRange()));if(window.gsap&&!matchMedia('(prefers-reduced-motion: reduce)').matches){gsap.to(driver,{p,duration:.16,ease:'power1.out',overwrite:true,onUpdate:()=>paint(driver.p)})}else{driver.p=p;paint(p)}}
+const driver={p:0};addEventListener('scroll',()=>{if(!queued){queued=true;requestAnimationFrame(update)}},{passive:true});
+addEventListener('resize',update);$('progress').oninput=e=>goto(Number(e.target.value)/1000,false);
+$('next').onclick=()=>goto(stops.find(s=>s>current+.001)??1,true);
+$('prev').onclick=()=>goto([...stops].reverse().find(s=>s<current-.001)??0,true);
+$('details').onclick=()=>$('sheet').showModal();$('closeSheet').onclick=()=>$('sheet').close();
+$('status').textContent='Percurso em perspectiva local. Os mapas fotográficos e o GSAP carregam pela internet.';
+setupGL();update();
+</script></html>
+
+
+
